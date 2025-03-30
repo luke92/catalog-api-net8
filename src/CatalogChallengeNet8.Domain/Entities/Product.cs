@@ -1,4 +1,6 @@
-﻿namespace CatalogChallengeNet8.Domain.Entities
+﻿using CatalogChallengeNet8.Domain.Common;
+
+namespace CatalogChallengeNet8.Domain.Entities
 {
     public class Product: BaseEntity
     {
