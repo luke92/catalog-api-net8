@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CatalogChallengeNet8.DataImporter": {
+      "commandName": "Project",
+      "commandLineArgs": "asd"
+    }
+  }
+}

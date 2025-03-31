@@ -30,5 +30,7 @@ namespace CatalogChallengeNet8.Infrastructure.Repositories
         public void Delete(T entity) => _dbSet.Remove(entity);
 
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
+
+        public async Task AddRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
     }
 }

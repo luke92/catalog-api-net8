@@ -11,5 +11,6 @@ namespace CatalogChallengeNet8.Application.Interfaces
         void Update(T entity);
         void Delete(T entity);
         Task<int> SaveChangesAsync();
+        Task AddRangeAsync(IEnumerable<T> entities);
     }
 }
