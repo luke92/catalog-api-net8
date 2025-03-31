@@ -13,18 +13,49 @@ class Program
     static async Task Main(string[] args)
     {
 
-        Log.Logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .WriteTo.Console() 
-            .CreateBootstrapLogger();
+        // --- Configure Host ---
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders(); // Asegura que solo Serilog maneja los logs
+            })
+            .ConfigureAppConfiguration((context, configBuilder) =>
+            {
+                // appsettings.json is read by default
+            })
+            .UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
+                .ReadFrom.Configuration(context.Configuration) // Read Serilog config from appsettings.json
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()) // Ensure Console sink is configured (can be refined in appsettings)
+            .ConfigureServices((hostContext, services) =>
+            {
+                // Get configuration
+                var configuration = hostContext.Configuration;
 
-        Log.Information("Starting Data Importer application...");
+                // Register Infrastructure Module (DbContext, Generic Repo)
+                services.AddInfrastructure(configuration);
+
+                // Register Application Services
+                services.AddScoped<ICsvReaderService, CsvReaderService>();
+
+                // Register the main Orchestrator service
+                services.AddScoped<DataImportOrchestrator>();
+
+                // Add configuration options
+                services.Configure<ImportSettings>(configuration.GetSection("ImportSettings"));
+
+            })
+            .Build();
+
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Starting Data Importer application...");
 
         try
         {
             if (args.Length < 1)
             {
-                Log.Error("Error: Please provide the CSV file path as an argument.");
+                logger.LogError("Error: Please provide the CSV file path as an argument.");
                 Console.WriteLine("Usage: dotnet run <path_to_your_csv_file>");
                 return;
             }
@@ -32,51 +63,20 @@ class Program
 
             if (!File.Exists(filePath))
             {
-                Log.Error("Error: File does not exist at the specified path: {FilePath}", filePath);
+                logger.LogError("Error: File does not exist at the specified path: {FilePath}", filePath);
                 return;
             }
-
-            // --- Configure Host ---
-            var host = Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, configBuilder) =>
-                {
-                    // appsettings.json is read by default
-                })
-                .UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
-                    .ReadFrom.Configuration(context.Configuration) // Read Serilog config from appsettings.json
-                    .ReadFrom.Services(services)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console()) // Ensure Console sink is configured (can be refined in appsettings)
-                .ConfigureServices((hostContext, services) =>
-                {
-                    // Get configuration
-                    var configuration = hostContext.Configuration;
-
-                    // Register Infrastructure Module (DbContext, Generic Repo)
-                    services.AddInfrastructure(configuration);
-
-                    // Register Application Services
-                    services.AddScoped<ICsvReaderService, CsvReaderService>();
-
-                    // Register the main Orchestrator service
-                    services.AddScoped<DataImportOrchestrator>();
-
-                    // Add configuration options
-                    services.Configure<ImportSettings>(configuration.GetSection("ImportSettings"));
-
-                })
-                .Build();
 
             await RunImportAsync(host.Services, filePath);
 
         }
         catch (Exception ex)
         {
-            Log.Fatal(ex, "Application terminated unexpectedly.");
+            logger.LogCritical(ex, "Application terminated unexpectedly.");
         }
         finally
         {
-            Log.Information("Shutting down Data Importer application.");
+            logger.LogInformation("Shutting down Data Importer application.");
             await Log.CloseAndFlushAsync();
         }
     }
@@ -87,16 +87,15 @@ class Program
         using (var scope = services.CreateScope())
         {
             var serviceProvider = scope.ServiceProvider;
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
             try
             {
                 var orchestrator = serviceProvider.GetRequiredService<DataImportOrchestrator>();
                 await orchestrator.ImportDataAsync(filePath);
-                Log.Information("Import process finished.");
+                logger.LogInformation("Import process finished.");
             }
             catch (Exception ex)
             {
-                // Log errors originating from the orchestrator or DI resolution
-                var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
                 logger.LogError(ex, "An error occurred during the data import process.");
             }
         }

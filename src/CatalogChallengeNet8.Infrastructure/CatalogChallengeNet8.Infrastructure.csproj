@@ -22,4 +22,10 @@
     <ProjectReference Include="..\CatalogChallengeNet8.Domain\CatalogChallengeNet8.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
   "profiles": {
     "CatalogChallengeNet8.DataImporter": {
       "commandName": "Project",
-      "commandLineArgs": "asd"
+      "commandLineArgs": "C:\\Users\\User\\Source\\Repos\\catalog-api-net8\\src\\CatalogChallengeNet8.DataImporter\\data_import.csv"
     }
   }
 }

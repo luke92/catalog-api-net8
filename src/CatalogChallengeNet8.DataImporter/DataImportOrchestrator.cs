@@ -4,7 +4,8 @@ using CatalogChallengeNet8.Application.Models; // Using ProductCategoryDto
 using CatalogChallengeNet8.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using CatalogChallengeNet8.DataImporter; // For DbUpdateException
+using CatalogChallengeNet8.DataImporter;
+using Microsoft.Extensions.Options; // For DbUpdateException
 
 public class DataImportOrchestrator
 {
@@ -19,13 +20,13 @@ public class DataImportOrchestrator
         IRepository<Product> productRepository,
         IRepository<Category> categoryRepository,
         ILogger<DataImportOrchestrator> logger,
-        ImportSettings settings)
+        IOptions<ImportSettings> settings)
     {
         _csvReaderService = csvReaderService ?? throw new ArgumentNullException(nameof(csvReaderService));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
     }
 
     public async Task ImportDataAsync(string filePath)
@@ -79,6 +80,7 @@ public class DataImportOrchestrator
         var batchProductCodes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         var batchCategoryCodes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
         var validDtos = new List<ProductCategoryDto>();
+        var invalidDtos = new List<ProductCategoryDto>();
         var validationErrors = new List<string>();
         var stopOnError = _settings.StopOnError;
 
@@ -88,6 +90,7 @@ public class DataImportOrchestrator
             var errors = ValidateDto(dto, index + 1, existingProductCodes, existingCategoryCodes, batchProductCodes, batchCategoryCodes);
             if (errors.Any())
             {
+                invalidDtos.Add(dto);
                 validationErrors.AddRange(errors);
                 if (stopOnError) return new List<ProductCategoryDto>();
             }
@@ -96,7 +99,7 @@ public class DataImportOrchestrator
                 validDtos.Add(dto);
             }
         }
-        LogValidationResults(validDtos.Count, validationErrors);
+        LogValidationResults(validDtos.Count, invalidDtos.Count, validationErrors);
         return validDtos;
     }
 
@@ -120,9 +123,9 @@ public class DataImportOrchestrator
         return errors;
     }
 
-    private void LogValidationResults(int validCount, List<string> validationErrors)
+    private void LogValidationResults(int validCount, int invalidCount, List<string> validationErrors)
     {
-        _logger.LogInformation("Validation completed. Valid records: {ValidCount}, Invalid records: {InvalidCount}", validCount, validationErrors.Count);
+        _logger.LogInformation("Validation completed. Valid records: {ValidCount}, Invalid records: {InvalidCount}", validCount, invalidCount);
         if (validationErrors.Any())
         {
             _logger.LogWarning("Validation errors:");
