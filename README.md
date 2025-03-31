@@ -14,3 +14,10 @@ Run Migration files for create the database
 dotnet ef database update --project src/CatalogChallengeNet8.Infrastructure --startup-project src/CatalogChallengeNet8.Infrastructure
 ```
 
+### Mount Database in Docker
+`docker-compose up -d`
+- After that remember change appsettings.json in Project Infrastructure to run migrations over that database
+
+## Start Import Process
+`dotnet run "C:\path\to\TestExampleFile.csv"`
+- Remember change appsettings.json in Project DataImporter if you want to import the data into de docker database
