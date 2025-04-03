@@ -71,7 +71,7 @@ public class DataImportOrchestrator
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching existing codes from the database. Aborting import.");
-            return (null, null);
+            return ([], []);
         }
     }
 
