@@ -1,3 +1,5 @@
+[![.NET](https://github.com/luke92/catalog-api-net8/actions/workflows/ci.yml/badge.svg)](https://github.com/luke92/catalog-api-net8/actions/workflows/ci.yml)
+
 # catalog-api-net8
 Challenge for create database and api of a catalog of products using NET 8
 
