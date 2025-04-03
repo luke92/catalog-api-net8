@@ -156,7 +156,7 @@ public class DataImportOrchestrator
         {
             category = (await _categoryRepository.FindAsync(c => c.Code.ToLower() == categoryCodeNorm)).FirstOrDefault()
                        ?? new Category { Name = dto.CategoryName.Trim(), Code = dto.CategoryCode.Trim() };
-            if (category.Id == Guid.Empty) categoriesToAdd.Add(category);
+            categoriesToAdd.Add(category);
             categoryCache[categoryCodeNorm] = category;
         }
         return category;
@@ -171,6 +171,7 @@ public class DataImportOrchestrator
             if (categoriesToAdd.Any() || productsToAdd.Any())
             {
                 var changes = await _categoryRepository.SaveChangesAsync();
+                
                 _logger.LogInformation("{ChangesCount} changes saved to the database.", changes);
             }
         }
