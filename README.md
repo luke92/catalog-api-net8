@@ -38,8 +38,13 @@ curl -X 'GET' \
   -H 'accept: text/plain'
 ```
 And we can sort the results
+
 ```
 curl -X 'GET' \
   'http://localhost:5077/api/products?page=1&pageSize=10&sortBy=categorycode&sortOrder=desc' \
   -H 'accept: text/plain'
 ```
+
+### Swagger Preview
+![image](https://github.com/user-attachments/assets/7404db65-9a37-4958-82a1-784e383de5a5)
+![image](https://github.com/user-attachments/assets/3fe22c2f-5f07-4890-84fe-deeb07d880c0)
