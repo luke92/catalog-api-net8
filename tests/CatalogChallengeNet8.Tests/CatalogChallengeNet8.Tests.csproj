@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\CatalogChallengeNet8.API\CatalogChallengeNet8.API.csproj" />
     <ProjectReference Include="..\..\src\CatalogChallengeNet8.Application\CatalogChallengeNet8.Application.csproj" />
     <ProjectReference Include="..\..\src\CatalogChallengeNet8.DataImporter\CatalogChallengeNet8.DataImporter.csproj" />
     <ProjectReference Include="..\..\src\CatalogChallengeNet8.Infrastructure\CatalogChallengeNet8.Infrastructure.csproj" />

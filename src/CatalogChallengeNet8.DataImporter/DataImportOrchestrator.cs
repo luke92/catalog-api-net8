@@ -1,11 +1,9 @@
-﻿// En CatalogChallengeNet8.DataImporter/DataImportOrchestrator.cs
-using CatalogChallengeNet8.Application.Interfaces;
-using CatalogChallengeNet8.Application.Models; // Using ProductCategoryDto
+﻿using CatalogChallengeNet8.Application.Interfaces;
+using CatalogChallengeNet8.Application.Models;
 using CatalogChallengeNet8.Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 using CatalogChallengeNet8.DataImporter;
-using Microsoft.Extensions.Options; // For DbUpdateException
+using Microsoft.Extensions.Options;
 
 public class DataImportOrchestrator
 {
